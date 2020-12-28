@@ -24,13 +24,33 @@ public class FakePersonDaoService implements PersonDao{
     }
 
     @Override
-    public int updatePerson(UUID id, Person person) {
-        return 0;
+    public int updatePerson(UUID id, Person personU) {
+        return getPersonById(id)
+                .map( p ->
+                {
+                    int indexOfPersonToUpdate = DB.indexOf(p);
+                    if ( indexOfPersonToUpdate >=0) {
+                        DB.set(indexOfPersonToUpdate, new Person(id , personU.getName() ));
+                        return 1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+                ).orElse(0);
     }
 
     @Override
     public int deletePersonById(UUID id) {
-        return 0;
+        Optional<Person> personMaybe= getPersonById(id);
+        if(personMaybe.isEmpty()){
+            return 0;
+        }
+        else{
+            DB.remove(personMaybe.get());
+            return 1;
+
+        }
     }
 
     @Override
